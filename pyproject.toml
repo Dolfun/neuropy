@@ -1,0 +1,6 @@
+[build-system]
+requires = ["setuptool", "pybind11"]
+
+[project]
+name = "neuropy"
+version = "0.1.0"
