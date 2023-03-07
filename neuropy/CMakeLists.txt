@@ -1,0 +1,1 @@
+pybind11_add_module(hello2 test.cc)
