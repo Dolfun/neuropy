@@ -1,10 +1,17 @@
 [build-system]
-requires = ["setuptools", "pybind11", "cmake>=3.18.2"]
+requires = [
+    "setuptools",
+    "pybind11",
+    "cmake",
+]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "neuropy"
 version = "0.1.0"
+dependencies = [
+    "numpy",
+]
 
-[tool.setuptools.packages.find]
-include = ["neuropy"]
+#[tool.setuptools.packages.find]
+#include = ["neuropy"]
