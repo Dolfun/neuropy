@@ -2,6 +2,6 @@ __pycache__/
 build/
 dist/
 *.egg-info/
-test_env/
+venv/
 
 .vscode/
