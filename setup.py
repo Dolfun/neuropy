@@ -50,7 +50,7 @@ class CMakeBuild(build_ext):
         
 
 setup(
-    ext_modules=[CMakeExtension(os.sep.join(["neuropy", "test"]))],
+    #ext_modules=[CMakeExtension(os.sep.join(["neuropy", "test"]))],
     cmdclass={
         "build_ext" : CMakeBuild,
     }
