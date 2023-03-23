@@ -7,7 +7,7 @@ class Graph:
     def __init__(self):
         self.nodes = []
 
-    def add_variable(self, value):
+    def create_variable(self, value):
         if not hasattr(value, '__array__'):
             raise TypeError('Expected a numpy array-like object')
         return Node(value, self)
@@ -50,7 +50,7 @@ class Graph:
                 partial_diff = UNARY_OPERATIONS[node.operation](u.value, node.value)
                 u.adj_value += node.adj_value * partial_diff
 
-    def differentiate(self):
+    def compute_gradient(self):
         self.forward_pass()
         self.ready()
         self.backward_pass()

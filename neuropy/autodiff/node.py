@@ -22,7 +22,7 @@ class Node(numpy.lib.mixins.NDArrayOperatorsMixin):
         self.index = self.__class__.index_count
         self.__class__.index_count += 1
 
-    def get_adj(self):
+    def gradient(self):
         return self.adj_value
 
     def __repr__(self):
