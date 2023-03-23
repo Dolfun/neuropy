@@ -1,31 +1,71 @@
-class Node:
-    count = 0
+import numpy.lib.mixins
+from .function import *
 
-    def __init__(self, value, operation=None):
-        self.prev_nodes = []
-        self.next_nodes = []
+
+class Node(numpy.lib.mixins.NDArrayOperatorsMixin):
+    index_count = 0
+
+    def __init__(self, value, graph=None):
+        if graph is None:
+            raise Exception('Variable must be initialized with a Graph')
         self.value = value
-        self.adj_value = None
-        self.operation = operation
+        self.adj_value = 0
+        self.operation = None
+        self.is_constant = False
 
-        self.index = self.__class__.count
-        self.__class__.count += 1
+        self.next_nodes = []
+        self.prev_nodes = []
 
-    @property
-    def value(self):
-        return self._value
+        self.graph = graph
+        self.graph.nodes.append(self)
 
-    @value.setter
-    def value(self, value):
-        self._value = value.__array__()
+        self.index = self.__class__.index_count
+        self.__class__.index_count += 1
 
-    def __hash__(self):
-        return hash(self.__class__.count)
+    def get_adj(self):
+        return self.adj_value
+
+    def __repr__(self):
+        array_repr = self.value.__array__().__repr__()
+        return f'Variable({array_repr[array_repr.find("(")+1:-1]})'
+
+    def __array__(self):
+        return self.value.__array__()
+
+    def process_operation(self, operation, args, kwargs):
+        value_args = []
+        node_args = []
+        for arg in args:
+            if isinstance(arg, Node):
+                value_args.append(arg.value)
+                node_args.append(arg)
+            else:
+                new_node = Node(arg, graph=self.graph)
+                new_node.is_constant = True
+                value_args.append(new_node.value)
+                node_args.append(new_node)
+
+        evaluated_value = operation(*value_args, **kwargs)
+        new_node = Node(evaluated_value, graph=self.graph)
+        new_node.operation = operation
+        for arg in node_args:
+            arg.next_nodes.append(new_node)
+            new_node.prev_nodes.append(arg)
+        return new_node
+
+    def __array_ufunc__(self, ufunc, method, *args, **kwargs):
+        if method != '__call__' or ufunc not in HANDLED_UFUNCS:
+            return NotImplemented
+
+        return self.process_operation(ufunc, args, kwargs)
+
+    def __array_function__(self, func, types, args, kwargs):
+        if func not in HANDLED_ARRAY_FUNCTIONS:
+            return NotImplemented
+        if not all(issubclass(t, self.__class__) for t in types):
+            return NotImplemented
+
+        return self.process_operation(func, args, kwargs)
 
 
-def connect_node(prev_node, curr_node):
-    prev_node.next_nodes.append(curr_node)
-    curr_node.prev_nodes.append(prev_node)
-
-
-__all__ = ['Node', 'connect_node']
+__all__ = ['Node']

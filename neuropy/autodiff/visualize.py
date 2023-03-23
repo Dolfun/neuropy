@@ -6,9 +6,12 @@ def visualize(graph):
     f.attr(rankdir='LR', size='40, 32')
     f.attr('node', shape='circle')
     for node in graph.nodes:
-        label = f'x{node.index}: {node.value}, {node.adj_value}'
+        label = f'{node.value}, {node.adj_value}'
         if node.operation is not None:
             label += f'\n{node.operation.__name__}'
+        if node.is_constant:
+            label += '\nConst'
+
         f.node(f'{node.index}', label=label, shape='circle')
     for node in graph.nodes:
         for next_node in node.next_nodes:

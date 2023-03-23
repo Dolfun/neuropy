@@ -1,31 +1,38 @@
 import numpy as np
 
 BINARY_UFUNCS = {
-    np.add: lambda x, y: (1, 1),
-    np.subtract: lambda x, y: (1, -1),
-    np.multiply: lambda x, y: (y, x),
-    np.divide: lambda x, y: (1 / y, -x / np.square(x)),
-    np.power: lambda x, y: (y * np.power(x, y - 1), np.log(x) * np.power(x, y)),
-    # np.matmul: None,
+    np.add: (lambda x, y, res: 1,
+             lambda x, y, res: 1),
+    np.subtract: (lambda x, y, res: 1,
+                  lambda x, y, res: -1),
+    np.multiply: (lambda x, y, res: y,
+                  lambda x, y, res: x),
+    np.divide: (lambda x, y, res: 1 / y,
+                lambda x, y, res: -res / y),
+    np.power: (lambda x, y, res: res * y / x,
+               lambda x, y, res: res * np.log(x)),
+    np.matmul: (lambda x, y, res: np.matmul(np.ones(res.shape), y.T),
+                lambda x, y, res: np.matmul(x.T, np.ones(res.shape))),
 }
 
 UNARY_UFUNCS = {
-    np.square: lambda x: 2 * x,
-    np.sqrt: lambda x: 1 / (2 * np.sqrt(x)),
-    np.exp: lambda x: np.exp(x),
-    np.exp2: lambda x: np.exp2(x) * np.log(2),
-    np.log: lambda x: 1 / x,
-    np.log2: lambda x: 1 / (x * np.log(2)),
-    np.log10: lambda x: 1 / (x * np.log(10)),
-    np.reciprocal: lambda x: -1 / np.square(x)
+    np.square: lambda x, res: 2 * x,
+    np.sqrt: lambda x, res: 1 / (2 * res),
+    np.exp: lambda x, res: res,
+    np.exp2: lambda x, res: res * np.log(2),
+    np.log: lambda x, res: 1 / x,
+    np.log2: lambda x, res: 1 / (x * np.log(2)),
+    np.log10: lambda x, res: 1 / (x * np.log(10)),
+    np.reciprocal: lambda x, res: -1 / np.square(x)
 }
 
 BINARY_ARRAY_FUNCTIONS = {
-    np.dot: lambda x, y: (y, x)
+    np.dot: (lambda x, y, res: y,
+             lambda x, y, res: x),
 }
 
 UNARY_ARRAY_FUNCTIONS = {
-    np.sum: lambda x: np.ones(x.shape)
+    np.sum: lambda x, res: np.ones(x.shape)
 }
 
 BINARY_OPERATIONS = BINARY_UFUNCS | BINARY_ARRAY_FUNCTIONS

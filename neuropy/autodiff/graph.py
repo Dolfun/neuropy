@@ -1,29 +1,18 @@
 import numpy as np
-
-from .variable import *
-from .function import *
 from .node import *
+from .function import *
 
 
 class Graph:
     def __init__(self):
         self.nodes = []
-        self.variables = []
 
-    def create_variable(self, value):
-        return Variable(value, self)
+    def add_variable(self, value):
+        if not hasattr(value, '__array__'):
+            raise TypeError('Expected a numpy array-like object')
+        return Node(value, self)
 
-    @staticmethod
-    def insert_node(value, operation, args):
-        node = value.node
-        node.operation = operation
-        if operation in BINARY_OPERATIONS:
-            connect_node(args[0].node, node)
-            connect_node(args[1].node, node)
-        elif operation in UNARY_OPERATIONS:
-            connect_node(args[0].node, node)
-
-    def compute_values(self):
+    def forward_pass(self):
         for node in self.nodes:
             if node.operation is None:
                 continue
@@ -33,19 +22,15 @@ class Graph:
                 node.value = node.operation(node.prev_nodes[0].value)
 
     def ready(self):
-        self.compute_values()
-
-        nr_out = 0
+        nr_output = 0
         for node in self.nodes:
-            node.adj_value = np.zeros(node.value.shape)
+            node.adj_value = 0
             if len(node.next_nodes) == 0:
-                nr_out += 1
-        if nr_out > 1:
+                nr_output += 1
+        if nr_output > 1:
             raise Exception('Expected only one output variable')
 
-    def differentiate(self):
-        self.ready()
-
+    def backward_pass(self):
         output_node = self.nodes[-1]
         output_node.adj_value = np.ones(output_node.value.shape)
 
@@ -53,13 +38,22 @@ class Graph:
             if node.operation in BINARY_OPERATIONS:
                 u0 = node.prev_nodes[0]
                 u1 = node.prev_nodes[1]
-                partial_diff = BINARY_OPERATIONS[node.operation](u0.value, u1.value)
+                partial_diff = [0, 0]
+                if not u0.is_constant:
+                    partial_diff[0] = BINARY_OPERATIONS[node.operation][0](u0.value, u1.value, node.value)
+                if not u1.is_constant:
+                    partial_diff[1] = BINARY_OPERATIONS[node.operation][1](u0.value, u1.value, node.value)
                 u0.adj_value += node.adj_value * partial_diff[0]
                 u1.adj_value += node.adj_value * partial_diff[1]
             elif node.operation in UNARY_OPERATIONS:
                 u = node.prev_nodes[0]
-                partial_diff = UNARY_OPERATIONS[node.operation](u.value)
+                partial_diff = UNARY_OPERATIONS[node.operation](u.value, node.value)
                 u.adj_value += node.adj_value * partial_diff
 
+    def differentiate(self):
+        self.forward_pass()
+        self.ready()
+        self.backward_pass()
 
-__all__ = ['Graph', 'Node']
+
+__all__ = ['Graph']
