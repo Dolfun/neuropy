@@ -9,6 +9,7 @@ class Node(numpy.lib.mixins.NDArrayOperatorsMixin):
         if graph is None:
             raise Exception('Variable must be initialized with a Graph')
         self.value = value
+
         self.adj_value = 0
         self.operation = None
         self.is_constant = False
@@ -21,6 +22,18 @@ class Node(numpy.lib.mixins.NDArrayOperatorsMixin):
 
         self.index = self.__class__.index_count
         self.__class__.index_count += 1
+
+    @property
+    def shape(self):
+        return self.value.shape
+
+    @property
+    def ndim(self):
+        return self.value.ndim
+
+    @property
+    def size(self):
+        return self.value.size
 
     def gradient(self):
         return self.adj_value
@@ -64,7 +77,6 @@ class Node(numpy.lib.mixins.NDArrayOperatorsMixin):
             return NotImplemented
         if not all(issubclass(t, self.__class__) for t in types):
             return NotImplemented
-
         return self.process_operation(func, args, kwargs)
 
 
