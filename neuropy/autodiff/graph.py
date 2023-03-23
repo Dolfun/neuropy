@@ -12,6 +12,13 @@ class Graph:
             raise TypeError('Expected a numpy array-like object')
         return Node(value, self)
 
+    def create_constant(self, value):
+        if not hasattr(value, '__array__'):
+            raise TypeError('Expected a numpy array-like object')
+        node = Node(value, self)
+        node.is_constant = True
+        return node
+
     def forward_pass(self):
         for node in self.nodes:
             if node.operation is None:
