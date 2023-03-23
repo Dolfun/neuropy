@@ -32,7 +32,8 @@ BINARY_ARRAY_FUNCTIONS = {
 }
 
 UNARY_ARRAY_FUNCTIONS = {
-    np.sum: lambda x, res: np.ones(x.shape)
+    np.sum: lambda x, res: np.ones(x.shape),
+    np.linalg.norm: lambda x, res: 2 * x,
 }
 
 BINARY_OPERATIONS = BINARY_UFUNCS | BINARY_ARRAY_FUNCTIONS
