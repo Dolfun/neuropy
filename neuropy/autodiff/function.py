@@ -1,39 +1,42 @@
 import numpy as np
 
+# x, y -> Input
+# r -> result of operation
+# d -> adjoint of contributing node
 BINARY_UFUNCS = {
-    np.add: (lambda x, y, res: 1,
-             lambda x, y, res: 1),
-    np.subtract: (lambda x, y, res: 1,
-                  lambda x, y, res: -1),
-    np.multiply: (lambda x, y, res: y,
-                  lambda x, y, res: x),
-    np.divide: (lambda x, y, res: 1 / y,
-                lambda x, y, res: -res / y),
-    np.power: (lambda x, y, res: res * y / x,
-               lambda x, y, res: res * np.log(x)),
-    np.matmul: (lambda x, y, res: np.matmul(np.ones(res.shape), y.T),
-                lambda x, y, res: np.matmul(x.T, np.ones(res.shape))),
+    np.add: (lambda x, y, r, d: d,
+             lambda x, y, r, d: d),
+    np.subtract: (lambda x, y, r, d: d,
+                  lambda x, y, r, d: -d),
+    np.multiply: (lambda x, y, r, d: d * y,
+                  lambda x, y, r, d: d * x),
+    np.divide: (lambda x, y, r, d: d / y,
+                lambda x, y, r, d: -d * r / y),
+    np.power: (lambda x, y, r, d: d * r * y / x,
+               lambda x, y, r, d: d * r * np.log(x)),
+    np.matmul: (lambda x, y, r, d: np.matmul(d, y.T),
+                lambda x, y, r, d: np.matmul(x.T, d)),
 }
 
 UNARY_UFUNCS = {
-    np.square: lambda x, res: 2 * x,
-    np.sqrt: lambda x, res: 1 / (2 * res),
-    np.exp: lambda x, res: res,
-    np.exp2: lambda x, res: res * np.log(2),
-    np.log: lambda x, res: 1 / x,
-    np.log2: lambda x, res: 1 / (x * np.log(2)),
-    np.log10: lambda x, res: 1 / (x * np.log(10)),
-    np.reciprocal: lambda x, res: -1 / np.square(x)
+    np.square: lambda x, r, d: 2 * x * d,
+    np.sqrt: lambda x, r, d: d / (2 * r),
+    np.exp: lambda x, r, d: d * r,
+    np.exp2: lambda x, r, d: d * r * np.log(2),
+    np.log: lambda x, r, d: d / x,
+    np.log2: lambda x, r, d: d / (x * np.log(2)),
+    np.log10: lambda x, r, d: d / (x * np.log(10)),
+    np.reciprocal: lambda x, r, d: -d / np.square(x)
 }
 
 BINARY_ARRAY_FUNCTIONS = {
-    np.dot: (lambda x, y, res: y,
-             lambda x, y, res: x),
+    np.dot: (lambda x, y, r, d: d * y,
+             lambda x, y, r, d: d * x),
 }
 
 UNARY_ARRAY_FUNCTIONS = {
-    np.sum: lambda x, res: np.ones(x.shape),
-    np.linalg.norm: lambda x, res: 2 * x,
+    np.sum: lambda x, r, d: d * np.ones(x.shape),
+    np.linalg.norm: lambda x, r, d: 2 * x * d,
 }
 
 BINARY_OPERATIONS = BINARY_UFUNCS | BINARY_ARRAY_FUNCTIONS
