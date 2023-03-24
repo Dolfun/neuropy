@@ -14,6 +14,9 @@ def gradient_descent(x, y, w_in, *, alpha_init=1.0,
 
     for i in range(nr_iterations):
         grad = compute_gradient(x, y, w)
+        if np.allclose(grad, prev_grad):
+            break
+
         alpha = compute_learning_rate(w, prev_w, grad, prev_grad) if i != 0 else alpha_init
 
         prev_w = np.copy(w)
@@ -26,9 +29,6 @@ def gradient_descent(x, y, w_in, *, alpha_init=1.0,
 
         if i % np.ceil(nr_iterations / nr_output) == 0:
             print(f'Iteration {i:4d}: Cost {cost_history[-1]:8.5f}')
-
-        if np.allclose(grad, prev_grad):
-            break
 
     return w, cost_history, alpha_history
 
