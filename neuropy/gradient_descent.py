@@ -40,7 +40,7 @@ def gradient_descent(x, y, w_in, *, alpha_init=1.0,
         cost_history.append(compute_cost(x, y, w))
         alpha_history.append(alpha)
 
-        if i % np.ceil(nr_iterations / nr_output) == 0:
+        if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations - 1:
             print(f'Iteration {i:4d}: Cost {cost_history[-1]:8.5f}')
 
     return w, cost_history, alpha_history
