@@ -1,8 +1,9 @@
 import numpy as np
+import autodiff as ad
 
 
 def gradient_descent(x, y, w_in, *, alpha_init=1.0,
-                     compute_gradient, compute_cost, compute_learning_rate,
+                     compute_gradient=None, compute_cost, compute_learning_rate,
                      nr_iterations, nr_output=10):
 
     w = np.copy(w_in)
@@ -12,9 +13,22 @@ def gradient_descent(x, y, w_in, *, alpha_init=1.0,
 
     prev_w = prev_grad = np.zeros(w.shape)
 
+    g = w_ = None
+    if compute_gradient is None:
+        g = ad.Graph()
+        w_ = g.create_variable(w)
+        compute_cost(x, y, w_)
+
     for i in range(nr_iterations):
-        grad = compute_gradient(x, y, w)
+        grad = None
+        if compute_gradient is None:
+            g.compute_gradient()
+            grad = w_.gradient()
+        else:
+            grad = compute_gradient(x, y, w)
+
         if np.allclose(grad, prev_grad):
+            print(f'Converged at iteration {i}')
             break
 
         alpha = compute_learning_rate(w, prev_w, grad, prev_grad) if i != 0 else alpha_init
