@@ -1,5 +1,5 @@
 import numpy as np
-import autodiff as ad
+import neuropy.autodiff as ad
 
 
 def gradient_descent(x, y, w_in, *, alpha_init=1.0,
@@ -20,7 +20,6 @@ def gradient_descent(x, y, w_in, *, alpha_init=1.0,
         compute_cost(x, y, w_)
 
     for i in range(nr_iterations):
-        grad = None
         if compute_gradient is None:
             g.compute_gradient()
             grad = w_.gradient()
