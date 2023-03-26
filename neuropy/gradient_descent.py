@@ -26,7 +26,7 @@ def gradient_descent(x, y, w_in, *, alpha_init=1.0,
         else:
             grad = compute_gradient(x, y, w)
 
-        if np.allclose(grad, prev_grad):
+        if np.allclose(grad, prev_grad) or np.allclose(w, prev_w):
             print(f'Converged at iteration {i}')
             break
 
