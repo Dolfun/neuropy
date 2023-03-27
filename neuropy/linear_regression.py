@@ -34,4 +34,3 @@ def generate_polynomial_features(x_in, power_set):
             x[:, i] *= np.power(x_in[:, j], curr_set[j])
 
     return x
-
