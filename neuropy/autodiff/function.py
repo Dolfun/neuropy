@@ -26,7 +26,8 @@ UNARY_UFUNCS = {
     np.log: lambda x, r, d: d / x,
     np.log2: lambda x, r, d: d / (x * np.log(2)),
     np.log10: lambda x, r, d: d / (x * np.log(10)),
-    np.reciprocal: lambda x, r, d: -d / np.square(x)
+    np.reciprocal: lambda x, r, d: -d / np.square(x),
+    np.negative: lambda x, r, d: -d
 }
 
 BINARY_ARRAY_FUNCTIONS = {
