@@ -23,6 +23,8 @@ class Graph:
         for node in self.nodes:
             if node.operation is None:
                 continue
+            elif node.operation in CUSTOM_UFUNCS:
+                node.value = CUSTOM_UFUNCS[node.operation][0](node.prev_nodes[0].value)
             elif node.operation in BINARY_OPERATIONS:
                 node.value = node.operation(node.prev_nodes[0].value, node.prev_nodes[1].value)
             elif node.operation in UNARY_OPERATIONS:
@@ -43,7 +45,11 @@ class Graph:
 
         for node in reversed(self.nodes):
             adj_value = node.adj_value
-            if node.operation in BINARY_OPERATIONS:
+            if node.operation in CUSTOM_UFUNCS:
+                u = node.prev_nodes[0]
+                partial_diff = CUSTOM_UFUNCS[node.operation][1](u.value, node.value, adj_value)
+                u.adj_value += partial_diff
+            elif node.operation in BINARY_OPERATIONS:
                 u0 = node.prev_nodes[0]
                 u1 = node.prev_nodes[1]
                 partial_diff = [0, 0]

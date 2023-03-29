@@ -58,7 +58,10 @@ class Node(numpy.lib.mixins.NDArrayOperatorsMixin):
                 value_args.append(new_node.value)
                 node_args.append(new_node)
 
-        evaluated_value = operation(*value_args, **kwargs)
+        if operation in CUSTOM_UFUNCS:
+            evaluated_value = CUSTOM_UFUNCS[operation][0](*value_args, **kwargs)
+        else:
+            evaluated_value = operation(*value_args, **kwargs)
         new_node = Node(evaluated_value, graph=self.graph)
         new_node.operation = operation
         for arg in node_args:
