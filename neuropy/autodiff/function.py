@@ -13,8 +13,8 @@ BINARY_UFUNCS = {
                   lambda x, y, r, d: d * x),
     np.divide: (lambda x, y, r, d: d / y,
                 lambda x, y, r, d: -d * r / y),
-    np.power: (lambda x, y, r, d: d * r * y / x,
-               lambda x, y, r, d: d * r * np.log(x)),
+    # np.power: (lambda x, y, r, d: d * r * y / x,
+    #            lambda x, y, r, d: d * r * np.log(x)),
     np.matmul: (lambda x, y, r, d: np.matmul(d, y.T),
                 lambda x, y, r, d: np.matmul(x.T, d)),
 }
@@ -41,6 +41,7 @@ BINARY_ARRAY_FUNCTIONS = {
 UNARY_ARRAY_FUNCTIONS = {
     np.sum: lambda x, r, d: d * np.ones(x.shape),
     np.linalg.norm: lambda x, r, d: 2 * x * d,
+    np.transpose: lambda x, r, d: d.T
 }
 
 # Custom functions
@@ -69,7 +70,7 @@ def sigmoid(z):
 def relu(z):
     if is_computable(z):
         return z * (z > 0)
-    return relu_ufunc
+    return relu_ufunc(z)
 
 
 CUSTOM_UNARY_UFUNC = {
@@ -85,6 +86,7 @@ CUSTOM_UFUNCS = CUSTOM_UNARY_UFUNC
 
 __all__ = [
     'sigmoid',
+    'relu',
 
     'BINARY_UFUNCS',
     'UNARY_UFUNCS',

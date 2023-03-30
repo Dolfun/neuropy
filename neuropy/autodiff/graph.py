@@ -33,7 +33,7 @@ class Graph:
     def ready(self):
         nr_output = 0
         for node in self.nodes:
-            node.adj_value = 0
+            node.adj_value = np.zeros(node.value.shape)
             if len(node.next_nodes) == 0:
                 nr_output += 1
         if nr_output > 1:
@@ -43,12 +43,18 @@ class Graph:
         output_node = self.nodes[-1]
         output_node.adj_value = np.ones(output_node.value.shape)
 
+        def add_contribution(u_, value):
+            if u_.shape == value.shape:
+                u_.adj_value += value
+            else:
+                u_.adj_value += np.sum(value, axis=0)
+
         for node in reversed(self.nodes):
             adj_value = node.adj_value
             if node.operation in CUSTOM_UFUNCS:
                 u = node.prev_nodes[0]
                 partial_diff = CUSTOM_UFUNCS[node.operation][1](u.value, node.value, adj_value)
-                u.adj_value += partial_diff
+                add_contribution(u, partial_diff)
             elif node.operation in BINARY_OPERATIONS:
                 u0 = node.prev_nodes[0]
                 u1 = node.prev_nodes[1]
@@ -57,12 +63,12 @@ class Graph:
                     partial_diff[0] = BINARY_OPERATIONS[node.operation][0](u0.value, u1.value, node.value, adj_value)
                 if not u1.is_constant:
                     partial_diff[1] = BINARY_OPERATIONS[node.operation][1](u0.value, u1.value, node.value, adj_value)
-                u0.adj_value += partial_diff[0]
-                u1.adj_value += partial_diff[1]
+                add_contribution(u0, partial_diff[0])
+                add_contribution(u1, partial_diff[1])
             elif node.operation in UNARY_OPERATIONS:
                 u = node.prev_nodes[0]
                 partial_diff = UNARY_OPERATIONS[node.operation](u.value, node.value, adj_value)
-                u.adj_value += partial_diff
+                add_contribution(u, partial_diff)
 
     def compute_gradient(self):
         self.forward_pass()

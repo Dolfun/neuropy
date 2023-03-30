@@ -1,3 +1,4 @@
+import numpy as np
 import numpy.lib.mixins
 from .function import *
 
