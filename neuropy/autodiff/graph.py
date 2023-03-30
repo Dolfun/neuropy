@@ -1,4 +1,5 @@
 import numpy as np
+from numbers import Number
 from .node import *
 from .function import *
 
@@ -33,7 +34,7 @@ class Graph:
     def ready(self):
         nr_output = 0
         for node in self.nodes:
-            node.adj_value = np.zeros(node.value.shape)
+            node.adj_value = np.zeros_like(node.value)
             if len(node.next_nodes) == 0:
                 nr_output += 1
         if nr_output > 1:
@@ -41,10 +42,10 @@ class Graph:
 
     def backward_pass(self):
         output_node = self.nodes[-1]
-        output_node.adj_value = np.ones(output_node.value.shape)
+        output_node.adj_value = np.ones_like(output_node.value)
 
         def add_contribution(u_, value):
-            if u_.shape == value.shape:
+            if isinstance(value, Number) or u_.shape == value.shape:
                 u_.adj_value += value
             else:
                 u_.adj_value += np.sum(value, axis=0)
