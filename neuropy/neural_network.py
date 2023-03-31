@@ -39,7 +39,6 @@ class NeuralNetwork:
                 std = np.sqrt(1 / n_prev_layer)
 
             self.weights.append(self.graph.create_variable(np.random.normal(0.0, std, (n_curr_layer, n_prev_layer))))
-            # self.weights.append(self.graph.create_variable(np.random.rand(n_curr_layer, n_prev_layer)))
             self.biases.append(self.graph.create_variable(np.zeros(n_curr_layer)))
 
             self.layers[i] = self.layers[i - 1] @ np.transpose(self.weights[i]) + self.biases[i]
@@ -89,7 +88,7 @@ class NeuralNetwork:
                     v = v_p[j] / (1 - np.power(b2, i))
                     parameters[j].value -= alpha * m / (np.sqrt(v) + epsilon)
 
-                if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations - 1:
+                if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations:
                     print(f'Iteration {i:4d}: Cost {mse.value / batch_size:8.5f}')
 
     def evaluate(self, x):
