@@ -1,5 +1,5 @@
 import numpy as np
-import autodiff as ad
+import neuropy.autodiff as ad
 
 activation_functions = {
     'sigmoid': ad.sigmoid,
