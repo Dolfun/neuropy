@@ -58,7 +58,8 @@ class NeuralNetwork:
 
         self._y = self.graph.create_variable(np.zeros(self.layers[-1].shape))
         error = self.layers[-1] - self._y
-        mse = np.sum(np.square(error))
+        _batch_size = self.graph.create_variable(np.array(1.0))
+        mse = np.sum(np.square(error)) / _batch_size
 
         batch_no = 0
         y_split = np.array_split(y, nr_batches)
@@ -72,6 +73,7 @@ class NeuralNetwork:
             y_mini = y_split[batch_no]
 
             batch_size = x_mini.shape[0]
+            _batch_size.value = float(batch_size)
             print(f'[Batch {batch_no+1}/{nr_batches}: size {batch_size}]')
             batch_no += 1
 
@@ -97,7 +99,7 @@ class NeuralNetwork:
                     v = v_p[j] / (1 - np.power(b2, i))
                     parameters[j].value -= alpha * m / (np.sqrt(v) + epsilon)
 
-                cost_history.append(mse.value / batch_size)
+                cost_history.append(mse.value)
 
                 if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations:
                     print(f'Iteration {i:4d}: Cost {cost_history[-1]:8.5f}')
