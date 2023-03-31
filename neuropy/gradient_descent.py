@@ -2,7 +2,7 @@ import numpy as np
 import neuropy.autodiff as ad
 
 
-def gradient_descent(x, y, w_in, *, alpha=None,
+def gradient_descent(x, y, w_in, *, alpha, const_alpha=False,
                      prediction_function,
                      cost_function,
                      nr_iterations, nr_output=10):
@@ -32,7 +32,8 @@ def gradient_descent(x, y, w_in, *, alpha=None,
 
         w_diff = w - prev_w
         grad_diff = grad - prev_grad
-        alpha = np.dot(w_diff, grad_diff) / np.dot(grad_diff, grad_diff) if i != 0 else alpha
+        if i > 0 and not const_alpha:
+            alpha = np.dot(w_diff, grad_diff) / np.dot(grad_diff, grad_diff)
 
         prev_w = np.copy(w)
         prev_grad = np.copy(grad)
