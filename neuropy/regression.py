@@ -16,7 +16,7 @@ def predict_logistic(x, w):
 
 
 def log_loss(y_p, y):
-    np.sum(-y * np.log(y_p) - (1 - y) * np.log(1 - y.p))
+    np.sum(-y * np.log(y_p) - (1 - y) * np.log(1 - y_p))
 
 
 def linear_regression_analytical_solution(x, y):
