@@ -1,3 +1,4 @@
+from collections import namedtuple
 import numpy as np
 import neuropy.autodiff as ad
 
@@ -17,6 +18,12 @@ class NeuralNetwork:
 
         self.graph = ad.Graph()
         self._y = None
+
+        self.adam = namedtuple('adam', ['b1', 'b2', 'epsilon', 'alpha'])
+        self.adam.b1 = 0.9
+        self.adam.b2 = 0.999
+        self.adam.epsilon = 1e-8
+        self.adam.alpha = 0.002
 
     def add_layer(self, size, activation_function=None):
         self.layers.append(size)
@@ -46,7 +53,7 @@ class NeuralNetwork:
             if activation_function_name is not None:
                 self.layers[i] = activation_functions[activation_function_name](self.layers[i])
 
-    def train(self, x, y, *, nr_batches, nr_iterations, learning_rate=0.0001, nr_output=10):
+    def train(self, x, y, *, nr_batches, nr_iterations, nr_output=10):
         self.ready()
 
         self._y = self.graph.create_variable(np.zeros(self.layers[-1].shape))
@@ -58,6 +65,8 @@ class NeuralNetwork:
 
         parameters = self.weights[1:] + self.biases[1:]
         nr_parameters = len(parameters)
+
+        cost_history = []
 
         for x_mini in np.array_split(x, nr_batches):
             y_mini = y_split[batch_no]
@@ -72,10 +81,10 @@ class NeuralNetwork:
             m_p = [np.zeros_like(p.value) for p in parameters]
             v_p = [np.zeros_like(p.value) for p in parameters]
 
-            b1 = 0.9
-            b2 = 0.999
-            epsilon = 1e-8
-            alpha = 0.002
+            b1 = self.adam.b1
+            b2 = self.adam.b2
+            epsilon = self.adam.epsilon
+            alpha = self.adam.alpha
 
             for i in range(1, nr_iterations + 1):
                 self.graph.compute_gradient()
@@ -88,8 +97,12 @@ class NeuralNetwork:
                     v = v_p[j] / (1 - np.power(b2, i))
                     parameters[j].value -= alpha * m / (np.sqrt(v) + epsilon)
 
+                cost_history.append(mse.value / batch_size)
+
                 if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations:
-                    print(f'Iteration {i:4d}: Cost {mse.value / batch_size:8.5f}')
+                    print(f'Iteration {i:4d}: Cost {cost_history[-1]:8.5f}')
+
+        return cost_history
 
     def evaluate(self, x):
         self.layers[0].value = x
