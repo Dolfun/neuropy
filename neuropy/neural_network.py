@@ -101,7 +101,7 @@ class NeuralNetwork:
 
                 cost_history.append(mse.value)
 
-                if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations:
+                if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations or i == 1:
                     print(f'Iteration {i:4d}: Cost {cost_history[-1]:8.5f}')
 
         return cost_history
@@ -110,4 +110,4 @@ class NeuralNetwork:
         self.layers[0].value = x
         self._y.value = np.zeros((x.shape[0], self.layers[-1].shape[1]))
         self.graph.forward_pass()
-        return self.layers[-1].value
+        return np.argmax(self.layers[-1].value, axis=1)

@@ -21,7 +21,7 @@ def gradient_descent(x, y, w_in, *, alpha, const_alpha=False,
     def print_iteration(iteration_no):
         print(f'Iteration {iteration_no:4d}: Cost {cost_history[-1]:8.5f}')
 
-    for i in range(nr_iterations):
+    for i in range(1, nr_iterations + 1):
         g.compute_gradient()
         grad = w_.gradient()
 
@@ -43,7 +43,7 @@ def gradient_descent(x, y, w_in, *, alpha, const_alpha=False,
         cost_history.append(cost_function(prediction_function(x, w), y))
         alpha_history.append(alpha)
 
-        if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations - 1:
+        if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations or i == 1:
             print_iteration(i)
 
     return w, cost_history, alpha_history
