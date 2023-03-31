@@ -1,13 +1,22 @@
 import numpy as np
+from neuropy.autodiff import sigmoid
 
 
 def predict_linear(x, w):
     return x @ w
 
 
-def mean_squared_error(y_predict, y_real):
-    error = y_predict - y_real
+def mean_squared_error(y_p, y):
+    error = y_p - y
     return np.dot(error, error) / error.size
+
+
+def predict_logistic(x, w):
+    return sigmoid(x @ w)
+
+
+def log_loss(y_p, y):
+    -y * np.log(y_p) - (1 - y) * np.log(1 - y.p)
 
 
 def linear_regression_analytical_solution(x, y):
