@@ -5,6 +5,7 @@ import neuropy.autodiff as ad
 def gradient_descent(x, y, w_in, *, alpha, const_alpha=False,
                      prediction_function,
                      cost_function,
+                     gradient_function=None,
                      nr_iterations, nr_output=10):
 
     w = np.copy(w_in)
@@ -14,16 +15,21 @@ def gradient_descent(x, y, w_in, *, alpha, const_alpha=False,
 
     prev_w = prev_grad = np.zeros(w.shape)
 
-    g = ad.Graph()
-    w_ = g.create_variable(w)
-    cost_function(prediction_function(x, w_), y)
+    g = w_ = None
+    if gradient_function is None:
+        g = ad.Graph()
+        w_ = g.create_variable(w)
+        cost_function(prediction_function(x, w_), y)
 
     def print_iteration(iteration_no):
         print(f'Iteration {iteration_no:4d}: Cost {cost_history[-1]:8.5f}')
 
     for i in range(1, nr_iterations + 1):
-        g.compute_gradient()
-        grad = w_.gradient()
+        if gradient_function is None:
+            g.compute_gradient()
+            grad = w_.gradient()
+        else:
+            grad = gradient_function(x, y, w)
 
         if i != 0 and (np.allclose(grad, prev_grad) or np.allclose(w, prev_w)):
             print_iteration(i)
