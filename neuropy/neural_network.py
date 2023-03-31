@@ -48,6 +48,8 @@ class NeuralNetwork:
                 self.layers[i] = activation_functions[activation_function_name](self.layers[i])
 
     def train(self, x, y, *, nr_batches, nr_iterations, learning_rate=0.0001, nr_output=10):
+        self.ready()
+
         self._y = self.graph.create_variable(np.zeros(self.layers[-1].shape))
         error = self.layers[-1] - self._y
         mse = np.sum(np.square(error))
