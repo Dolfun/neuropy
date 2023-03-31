@@ -5,11 +5,6 @@ def linear_regression_analytical_solution(x, y):
     return np.linalg.pinv(x.T @ x) @ x.T @ y
 
 
-def linear_regression_regularized_analytical_solution(x, y, _lambda):
-    n, p = x.shape
-    return np.linalg.inv(x.T @ x + _lambda * n * np.eye(p)) @ x.T @ y
-
-
 def _generate_power_set(n, s, curr_list, power_set):
     if n == 1:
         curr_list.append(s)

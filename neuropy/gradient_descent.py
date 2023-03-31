@@ -2,8 +2,9 @@ import numpy as np
 import neuropy.autodiff as ad
 
 
-def gradient_descent(x, y, w_in, *, alpha_init=1.0,
-                     compute_gradient=None, compute_cost, compute_learning_rate,
+def gradient_descent(x, y, w_in, *, alpha=None,
+                     prediction_function,
+                     cost_function,
                      nr_iterations, nr_output=10):
 
     w = np.copy(w_in)
@@ -13,44 +14,35 @@ def gradient_descent(x, y, w_in, *, alpha_init=1.0,
 
     prev_w = prev_grad = np.zeros(w.shape)
 
-    g = w_ = None
-    if compute_gradient is None:
-        g = ad.Graph()
-        w_ = g.create_variable(w)
-        compute_cost(x, y, w_)
+    g = ad.Graph()
+    w_ = g.create_variable(w)
+    cost_function(prediction_function(x, w_), y)
 
     def print_iteration(iteration_no):
         print(f'Iteration {iteration_no:4d}: Cost {cost_history[-1]:8.5f}')
 
     for i in range(nr_iterations):
-        if compute_gradient is None:
-            g.compute_gradient()
-            grad = w_.gradient()
-        else:
-            grad = compute_gradient(x, y, w)
+        g.compute_gradient()
+        grad = w_.gradient()
 
         if i != 0 and (np.allclose(grad, prev_grad) or np.allclose(w, prev_w)):
             print_iteration(i)
             print(f'Converged at iteration {i}')
             break
 
-        alpha = compute_learning_rate(w, prev_w, grad, prev_grad) if i != 0 else alpha_init
+        w_diff = w - prev_w
+        grad_diff = grad - prev_grad
+        alpha = np.dot(w_diff, grad_diff) / np.dot(grad_diff, grad_diff) if i != 0 else alpha
 
         prev_w = np.copy(w)
         prev_grad = np.copy(grad)
 
         w -= alpha * grad
 
-        cost_history.append(compute_cost(x, y, w))
+        cost_history.append(cost_function(prediction_function(x, w), y))
         alpha_history.append(alpha)
 
         if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations - 1:
             print_iteration(i)
 
     return w, cost_history, alpha_history
-
-
-def barzilai_borwein_learning_rate(w, prev_w, grad, prev_grad):
-    w_diff = w - prev_w
-    grad_diff = grad - prev_grad
-    return np.dot(w_diff, grad_diff) / np.dot(grad_diff, grad_diff)
