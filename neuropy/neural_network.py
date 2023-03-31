@@ -55,6 +55,9 @@ class NeuralNetwork:
         batch_no = 0
         y_split = np.array_split(y, nr_batches)
 
+        parameters = self.weights[1:] + self.biases[1:]
+        nr_parameters = len(parameters)
+
         for x_mini in np.array_split(x, nr_batches):
             y_mini = y_split[batch_no]
 
@@ -65,16 +68,24 @@ class NeuralNetwork:
             self.layers[0].value = x_mini
             self._y.value = y_mini
 
-            for i in range(nr_iterations):
+            m_p = [np.zeros_like(p.value) for p in parameters]
+            v_p = [np.zeros_like(p.value) for p in parameters]
+
+            b1 = 0.9
+            b2 = 0.999
+            epsilon = 1e-8
+            alpha = 0.002
+
+            for i in range(1, nr_iterations + 1):
                 self.graph.compute_gradient()
 
-                for w in self.weights:
-                    if w is not None:
-                        w.value -= learning_rate * w.gradient()
-
-                for b in self.biases:
-                    if b is not None:
-                        b.value -= learning_rate * b.gradient()
+                for j in range(nr_parameters):
+                    g = parameters[j].gradient()
+                    m_p[j] = b1 * m_p[j] + (1 - b1) * g
+                    m = m_p[j] / (1 - np.power(b1, i))
+                    v_p[j] = b2 * v_p[j] + (1 - b2) * np.square(g)
+                    v = v_p[j] / (1 - np.power(b2, i))
+                    parameters[j].value -= alpha * m / (np.sqrt(v) + epsilon)
 
                 if i % np.ceil(nr_iterations / nr_output) == 0 or i == nr_iterations - 1:
                     print(f'Iteration {i:4d}: Cost {mse.value / batch_size:8.5f}')
