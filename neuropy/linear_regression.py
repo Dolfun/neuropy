@@ -1,6 +1,15 @@
 import numpy as np
 
 
+def predict_linear(x, w):
+    return x @ w
+
+
+def mean_squared_error(y_predict, y_real):
+    error = y_predict - y_real
+    return np.dot(error, error) / error.size
+
+
 def linear_regression_analytical_solution(x, y):
     return np.linalg.pinv(x.T @ x) @ x.T @ y
 
